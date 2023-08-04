@@ -28,6 +28,11 @@ class Club < ApplicationRecord
     match.draw?
   end
 
+  private def count_matches_by_result(year, result)
+    year = Date.new(year, 1, 1)
+    matches.where(kicked_off_at: year.all_year).count { |match| send("#{result}?", match) }
+  end
+
   def win_on(year)
     year = Date.new(year, 1, 1)
     count = 0
@@ -55,7 +60,15 @@ class Club < ApplicationRecord
     count
   end
 
-  def homebase
-    "#{hometown}, #{country}"
+  
+
+  def players_average_age
+    total_age = players.sum(&:age)
+    total_players = players.count
+
+    # Éviter une division par zéro en renvoyant 0 si le club n'a pas de joueurs
+    return 0 if total_players.zero?
+
+    (total_age / total_players.to_f).round(2)
   end
 end
